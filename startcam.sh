@@ -2,7 +2,7 @@
 date=`date +%Y%m%d-%H%M`
 outdir=takes/$date
 outfile=$outdir/cam$1.avi
-logfile=$outdir/cam$1.log
+logfile=$outdir/log$1.txt
 framerate=60
 #framerate=30
 #framerate=15
@@ -12,4 +12,4 @@ size=1920x1080
 #size=320x180
 mkdir -p $outdir
 echo "ffmpeg -hide_banner -loglevel warning -f v4l2 -r $framerate -s $size -input_format mjpeg -i /dev/video$1 -r 60 -vcodec copy -y $outfile &" > $logfile
-ffmpeg -hide_banner -loglevel warning -f v4l2 -r $framerate -s $size -input_format mjpeg -i /dev/video$1 -r 60 -vcodec copy -y $outfile >> $logfile 2>&1 &
+ffmpeg -hide_banner -loglevel warning -f v4l2 -r $framerate -s $size -input_format mjpeg -i $2 -r 60 -vcodec copy -y $outfile >> $logfile 2>&1 &
