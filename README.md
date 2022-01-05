@@ -16,3 +16,4 @@ Wanted features:
 * Playing takes (preferrably all cameras at once)
 * Automatic numbering of takes (easier to handle than date+time)
 * Archiving old recordings (to NAS or similar, in order to save local space)
+* Restarting failed recording unless manually stopped (save a good take by switching to another angle while the bad recording restarts)
