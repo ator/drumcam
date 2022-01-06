@@ -3,7 +3,6 @@ import getopt, sys
 def help():
     print("drumcam - Drum camera recorder")
     print("Usage:")
-    print("        drumcam -h")
     print("        drumcam [options]")
     print("Options:")
     print("        -h,--help   Show this help")
