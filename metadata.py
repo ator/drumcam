@@ -1,36 +1,50 @@
+from datetime import datetime
 import jsonpickle
+import npyscreen
 import os.path
 
 class Take:
-    def __init__(self, number):
+    def __init__(self, recording, number):
+        self.recording = recording
+        now = datetime.now()
+        self.name = now.strftime("%Y%m%d_%H%M%S")
         self.number = number
         self.is_good = False
 
-    def print(self):
-        print("Take", self.number, "(good)" if self.is_good else "(bad)")
+    def print(self, indent):
+        good_bad = "good" if self.is_good else "bad"
+        print(f"{indent}Take {self.number} ({good_bad})")
         
-    def toggle_good(self):
-        self.is_good = not self.is_good
+    def set_good(self, is_good):
+        self.is_good = is_good
+        self.save()
+
+    def save(self):
+        self.recording.save()
     
 class Recording:
-
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, repository):
+        self.repository = repository
+        self.name = "Untitled"
         self.takes = []
 
-    def print(self):
-        print("Recording:", self.name)
+    def print(self, indent):
+        print(f"{indent}Recording {self.name}")
         for take in self.takes:
-            take.print()
-            
-    def new_take(self):
+            take.print(indent + "  ")
+
+    def get_all_takes(self):
+        return self.takes
+    
+    def add_take(self):
         last_take = self.get_last_take()
         if last_take != None:
             last_take_number = last_take.number
         else:
             last_take_number = 0
-        take = Take(last_take_number + 1)
+        take = Take(self, last_take_number + 1)
         self.takes.append(take)
+        self.save()
         return take
 
     def get_last_take(self):
@@ -40,7 +54,11 @@ class Recording:
 
     def remove_take(self, take):
         self.takes.remove(take)
+        self.save()
 
+    def save(self):
+        self.repository.save()
+        
 class Repository:
 
     def __init__(self, filename):
@@ -48,22 +66,27 @@ class Repository:
         self.recordings = []
 
     def print(self):
-        print("Repository:", self.filename)
+        print(f"Repository {self.filename}")
         for recording in self.recordings:
-            recording.print()
-        
+            recording.print("  ")
+
+    def get_all_recordings(self):
+        return self.recordings
+    
     def get_last_recording(self):
         if len(self.recordings) > 0:
             return self.recordings[len(self.recordings) - 1]
         return None
     
-    def new_recording(self, name):
-        recording = Recording(name)
+    def add_recording(self):
+        recording = Recording(self)
         self.recordings.append(recording)
+        self.save()
         return recording
 
     def remove_recording(self, recording):
         self.recordings.remove(recording)
+        self.save()
 
     def save(self):
         try:
@@ -72,8 +95,7 @@ class Repository:
             file.write(json)
             file.close()
         except IOError as err:
-            print(str(err))
-            print("Unable to save config to", self.filename)
+            npyscreen.notify_confirm(f"Unable to save to {self.filename}: {str(err)}", title="Save", editw=1)
 
     @staticmethod
     def load(filename):
@@ -84,8 +106,7 @@ class Repository:
             file.close()
             return config
         except IOError as err:
-            print(str(err))
-            print("Unable to load config from", filename)
+            npyscreen.notify_confirm(f"Unable to load from {self.filename}: {str(err)}", title="Save", editw=1)
     
     @staticmethod
     def load_or_create(filename):

@@ -1,15 +1,25 @@
-from datetime import datetime
 import getopt
-import sys
 import metadata
+import npyscreen
+import sys
+import ui
 
+class App(npyscreen.NPSAppManaged):
+    def onStart(self):
+        self.addForm("MAIN", ui.RecordingListDisplay)
+        self.addForm("EDIT_RECORDING", ui.TakeListDisplay)
+#        self.addForm("EDIT_TAKE", ui.EditTakeDisplay)
+
+def load_repository(repository_filename):
+    return metadata.Repository.load_or_create(repository_filename)
+    
 def print_help():
     print("drumcam - Drum camera recorder")
     print("Usage:")
     print("        drumcam [options]")
     print("Options:")
     print("        -h,--help          Show this help")
-    print("        --repo <filename>  Use <filename> as metadata repository (defaults to drumcam.repo)")
+    print("        --repo <filename>  Use <filename> as metadata repository (defaults to .repo/drumcam.repo)")
     print("        --print            Print out the metadata repository contents")
 
 def load_arguments():
@@ -18,7 +28,7 @@ def load_arguments():
     options = "h"
     long_options = ["help", "repo=", "print"]
     
-    repository_filename = "drumcam.repo"
+    repository_filename = ".repo/drumcam.repo"
     print_repository = False
     
     try:
@@ -29,34 +39,25 @@ def load_arguments():
                 print_help()
                 sys.exit()
                 
-            elif argument == "--repository":
+            elif argument == "--repo":
                 repository_filename = value
                 
             elif argument == "--print":
                 print_repository = True
-
+                
         return repository_filename, print_repository
-    
+        
     except getopt.error as err:
         print(str(err))
         print_help()
         sys.exit(1)
 
-repository_filename, print_repository = load_arguments()
-
-repository = metadata.Repository.load_or_create(repository_filename)
-
-if print_repository:
-    repository.print()
-    
-else:
-    recording = repository.get_last_recording()
-    if recording == None:
-        now = datetime.now()
-        name = now.strftime("%Y%m%d_%H%M%S")
-        recording = repository.new_recording(name)
-        
-    take = recording.new_take()
-    take.toggle_good()
-    
-    repository.save()
+if __name__ == "__main__":
+    repository_filename, print_repository = load_arguments()
+    repository = load_repository(repository_filename)
+    if print_repository:
+        repository.print()
+    else:
+        app = App()
+        app.repository = repository
+        app.run()
