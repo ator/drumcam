@@ -60,9 +60,9 @@ class Recording:
         self.repository.save()
         
 class Repository:
-
-    def __init__(self, filename):
-        self.filename = filename
+    filename = ""
+    
+    def __init__(self):
         self.recordings = []
 
     def print(self):
@@ -111,7 +111,8 @@ class Repository:
     @staticmethod
     def load_or_create(filename):
         if os.path.isfile(filename):
-            return Repository.load(filename)
-        repository = Repository(filename)
-        repository.save()
+            repository = Repository.load(filename)
+        else:
+            repository = Repository()
+        repository.filename = filename
         return repository

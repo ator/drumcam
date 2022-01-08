@@ -5,9 +5,13 @@ import sys
 import ui
 
 class App(npyscreen.NPSAppManaged):
+    def __init__(self, repository):
+        super().__init__()
+        self.repository = repository
+        
     def onStart(self):
-        self.addForm("MAIN", ui.RecordingListDisplay)
-        self.addForm("EDIT_RECORDING", ui.TakeListDisplay)
+        self.addForm("MAIN", ui.RecordingListDisplay, name="Recordings", color="IMPORTANT")
+        self.addForm("EDIT_RECORDING", ui.TakeListDisplay, name="Takes")
 #        self.addForm("EDIT_TAKE", ui.EditTakeDisplay)
 
 def load_repository(repository_filename):
@@ -19,7 +23,7 @@ def print_help():
     print("        drumcam [options]")
     print("Options:")
     print("        -h,--help          Show this help")
-    print("        --repo <filename>  Use <filename> as metadata repository (defaults to .repo/drumcam.repo)")
+    print("        --repo <filename>  Use <filename> as metadata repository (defaults to .drumcam.repo)")
     print("        --print            Print out the metadata repository contents")
 
 def load_arguments():
@@ -28,7 +32,7 @@ def load_arguments():
     options = "h"
     long_options = ["help", "repo=", "print"]
     
-    repository_filename = ".repo/drumcam.repo"
+    repository_filename = ".drumcam.repo"
     print_repository = False
     
     try:
@@ -58,6 +62,5 @@ if __name__ == "__main__":
     if print_repository:
         repository.print()
     else:
-        app = App()
-        app.repository = repository
+        app = App(repository)
         app.run()

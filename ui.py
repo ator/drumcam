@@ -41,6 +41,8 @@ class TakeListDisplay(npyscreen.FormMutt):
     MAIN_WIDGET_CLASS = TakeList
     def beforeEditing(self):
         self.update_list()
+        self.wStatus1.value = f"{self.value.name}"
+        self.wStatus2.value = "^A=Add, ^D=Delete, ^G=Set Good, ^B=Set Bad, ESC=Exit"
 
     def update_list(self):
         self.wMain.values = self.value.get_all_takes()
@@ -98,6 +100,8 @@ class RecordingListDisplay(npyscreen.FormMutt):
     MAIN_WIDGET_CLASS = RecordingList
     def beforeEditing(self):
         self.update_list()
+        self.wStatus1.value = "Recordings"
+        self.wStatus2.value = "^A=Add, ^D=Delete, ESC=Exit"
 
     def update_list(self):
         self.wMain.values = self.parentApp.repository.get_all_recordings()
